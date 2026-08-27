@@ -15,13 +15,13 @@ class TransformerBlock(nn.Module):
         self.norm1 = RMSNorm(d_model)
         self.norm2 = RMSNorm(d_model)
         
-    def forward(self, x, mask=None, past_kv=None):
+    def forward(self, x, mask = None, past_kv = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, seq_len), causal mask / padding mask
         """
         # Pre-LN + MHA + Residual Connection
-        attn_out, new_kv = self.attn(self.norm1(x), mask=mask, past_kv=past_kv)
+        attn_out, new_kv = self.attn(self.norm1(x), mask = mask, past_kv = past_kv)
         x = x + attn_out
         # Pre-LN + FFN + Residual Connection
         x = x + self.ffn(self.norm2(x))
@@ -39,9 +39,9 @@ class DecoderOnlyTransformer(nn.Module):
         )  # 注意力层
         
         self.norm = RMSNorm(d_model)  # 归一化层
-        self.lm_head = nn.Linear(d_model, vocab_size, bias=False)  # 输出头
+        self.lm_head = nn.Linear(d_model, vocab_size, bias = False)  # 输出头
         
-    def forward(self, input_ids, mask=None, past_kv=None):
+    def forward(self, input_ids, mask = None, past_kv = None):
         """
         input_ids: (batch, seq_len)，带KV Cache的情形下一般seq_len=1
         mask: (seq_len, seq_len)
@@ -55,7 +55,7 @@ class DecoderOnlyTransformer(nn.Module):
         past_len = past_kv[0][0].size(-2) if past_kv is not None else 0
         
         # 词嵌入并添加可学习位置编码，注意位置编码应是第past_len到past_len+seq_len之间的位置
-        pos = torch.arange(past_len, past_len + seq_len, device=device)  # pos: (seq_len,)
+        pos = torch.arange(past_len, past_len + seq_len, device = device)  # pos: (seq_len,)
         pos = pos.unsqueeze(0)  # pos: (1, seq_len), broadcast到batch维度
         x = self.token_emb(input_ids) + self.pos_emb(pos)  # x: (batch, seq_len, d_model)
         
@@ -63,7 +63,7 @@ class DecoderOnlyTransformer(nn.Module):
         new_past_kv = []
         for i, layer in enumerate(self.layers):
             layer_past_kv = None if past_kv is None else past_kv[i]
-            x, layer_new_kv = layer(x, mask=mask, past_kv=layer_past_kv)
+            x, layer_new_kv = layer(x, mask = mask, past_kv = layer_past_kv)
             new_past_kv.append(layer_new_kv)
         
         x = self.norm(x)  # 归一化层
@@ -81,12 +81,12 @@ if __name__ == "__main__":
     max_seq_len = 1024
     
     model = DecoderOnlyTransformer(
-      vocab_size=vocab_size,
-      d_model=d_model,
-      num_heads=num_heads,
-      d_ff=d_ff,
-      num_layers=num_layers,
-      max_seq_len=max_seq_len
+      vocab_size = vocab_size,
+      d_model = d_model,
+      num_heads = num_heads,
+      d_ff = d_ff,
+      num_layers = num_layers,
+      max_seq_len = max_seq_len
     )
     
     past_kv = None
@@ -98,6 +98,6 @@ if __name__ == "__main__":
     
       logits, past_kv = model(
           input_ids,
-          mask=None,
-          past_kv=past_kv
+          mask = None,
+          past_kv = past_kv
       )

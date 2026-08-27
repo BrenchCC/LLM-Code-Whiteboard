@@ -12,8 +12,8 @@ class LoRALinear(nn.Module):
         in_dim = base_linear.in_features
         out_dim = base_linear.out_features
 
-        self.A = nn.Linear(in_dim, r, bias=False)
-        self.B = nn.Linear(r, out_dim, bias=False)
+        self.A = nn.Linear(in_dim, r, bias = False)
+        self.B = nn.Linear(r, out_dim, bias = False)
 
         nn.init.zeros_(self.B.weight)  # A初始随机化，B初始为0
 

@@ -1,6 +1,6 @@
 import torch
 
-def mask_mean(loss, mask=None):
+def mask_mean(loss, mask = None):
     if mask is not None:
         return (loss * mask).sum() / mask.sum()
     else:
@@ -11,11 +11,11 @@ def grpo_loss(
     old_logprobs,
     rewards,
     group_size,
-    mask=None,
-    ref_logprobs=None,
-    clip_eps=0.2,
-    kl_coef=0.1,
-    eps=1e-8
+    mask = None,
+    ref_logprobs = None,
+    clip_eps = 0.2,
+    kl_coef = 0.1,
+    eps = 1e-8
 ):
     """
     new_logprobs: (batch, seq_len) 每时间步下新策略模型输出的对数概率
@@ -34,15 +34,15 @@ def grpo_loss(
     
     # 1. 计算相对优势
     group_rewards = rewards.view(num_group, group_size)  # group_rewards: (num_group, group_size)
-    group_mean = group_rewards.mean(dim=-1, keepdim=True)  # group_mean: (num_group, 1)
-    group_std = group_rewards.std(dim=-1, keepdim=True, unbiased=False)  # group_std: (num_group, 1)
+    group_mean = group_rewards.mean(dim = -1, keepdim = True)  # group_mean: (num_group, 1)
+    group_std = group_rewards.std(dim = -1, keepdim = True, unbiased = False)  # group_std: (num_group, 1)
     advantages = (group_rewards - group_mean) / (group_std + eps)  # advantages: (num_group, group_size)
     advantages = advantages.view(batch, 1)  # advantages: (batch, 1)
     
     # 2. policy_loss
     ratio = torch.exp(new_logprobs - old_logprobs)
     unclipped = ratio * advantages
-    clipped = torch.clamp(ratio, min=1.0-clip_eps, max=1.0+clip_eps) * advantages
+    clipped = torch.clamp(ratio, min = 1.0-clip_eps, max = 1.0+clip_eps) * advantages
     policy_loss = -torch.min(unclipped, clipped)
     policy_loss = mask_mean(policy_loss, mask)
     

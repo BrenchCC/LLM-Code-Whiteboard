@@ -17,12 +17,12 @@ class SelfAttention(nn.Module):
         super().__init__()
         self.d_model = d_model
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.k_proj = nn.Linear(d_model, d_model, bias=False)
-        self.v_proj = nn.Linear(d_model, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.k_proj = nn.Linear(d_model, d_model, bias = False)
+        self.v_proj = nn.Linear(d_model, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
         
-    def forward(self, x, mask=None):
+    def forward(self, x, mask = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, seq_len), True=屏蔽, broadcast到batch维度
@@ -38,7 +38,7 @@ class SelfAttention(nn.Module):
             scores = scores.masked_fill(mask, float("-inf"))
         
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, seq_len, seq_len)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, seq_len, seq_len)
         out = torch.matmul(attn_weights, V)  # out: (batch, seq_len, d_model)
         return self.o_proj(out)  # return: (batch, seq_len, d_model)
 ```
@@ -53,13 +53,13 @@ d_model = 8
 
 # 不传mask的版本
 x = torch.randn(batch, seq_len, d_model)
-attn = SelfAttention(d_model=d_model)
+attn = SelfAttention(d_model = d_model)
 out = attn(x)
 
 # 传mask的版本
 x = torch.randn(batch, seq_len, d_model)
-mask = torch.triu(torch.ones(seq_len, seq_len, dtype=torch.bool), diagonal=1)
-out = attn(x, mask=mask)
+mask = torch.triu(torch.ones(seq_len, seq_len, dtype = torch.bool), diagonal = 1)
+out = attn(x, mask = mask)
 ```
 
 **pytorch 相关基础**
@@ -84,12 +84,12 @@ class CrossAttention(nn.Module):
         super().__init__()
         self.d_model = d_model
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.k_proj = nn.Linear(d_model, d_model, bias=False)
-        self.v_proj = nn.Linear(d_model, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.k_proj = nn.Linear(d_model, d_model, bias = False)
+        self.v_proj = nn.Linear(d_model, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
         
-    def forward(self, x_q, x_kv, mask=None):
+    def forward(self, x_q, x_kv, mask = None):
         """
         x_q: (batch, seq_q, d_model)
         x_kv: (batch, seq_kv, d_model)
@@ -106,7 +106,7 @@ class CrossAttention(nn.Module):
             scores = scores.masked_fill(mask, float("-inf"))
         
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, seq_q, seq_kv)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, seq_q, seq_kv)
         out = torch.matmul(attn_weights, V)  # out: (batch, seq_q, d_model)
         
         return self.o_proj(out)  # return: (batch, seq_len, d_model)
@@ -148,12 +148,12 @@ class MultiHeadAttention(nn.Module):
         self.num_heads = num_heads
         self.head_dim = d_model // num_heads
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.k_proj = nn.Linear(d_model, d_model, bias=False)
-        self.v_proj = nn.Linear(d_model, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.k_proj = nn.Linear(d_model, d_model, bias = False)
+        self.v_proj = nn.Linear(d_model, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
 
-    def forward(self, x, mask=None):
+    def forward(self, x, mask = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, seq_len), True=屏蔽, broadcast到batch和num_heads维度
@@ -177,7 +177,7 @@ class MultiHeadAttention(nn.Module):
             scores = scores.masked_fill(mask, float('-inf'))
             
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, num_heads, seq_len, seq_len)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, num_heads, seq_len, seq_len)
         out = torch.matmul(attn_weights, V)  # out: (batch, num_heads, seq_len, head_dim)
         
         # 合并多头结果
@@ -191,9 +191,9 @@ class MultiHeadAttention(nn.Module):
 
 ```python
 x = torch.randn(2, 4, 8)
-mha = MultiHeadAttention(d_model=8, num_heads=2)
-mask = torch.triu(torch.ones(4, 4, dtype=torch.bool), diagonal=1)
-out = mha(x, mask=mask)
+mha = MultiHeadAttention(d_model = 8, num_heads = 2)
+mask = torch.triu(torch.ones(4, 4, dtype = torch.bool), diagonal = 1)
+out = mha(x, mask = mask)
 ```
 
 **pytorch 相关基础**：
@@ -224,12 +224,12 @@ class MultiHeadAttention(nn.Module):
         self.num_heads = num_heads
         self.head_dim = d_model // num_heads
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.k_proj = nn.Linear(d_model, d_model, bias=False)
-        self.v_proj = nn.Linear(d_model, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.k_proj = nn.Linear(d_model, d_model, bias = False)
+        self.v_proj = nn.Linear(d_model, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
         
-    def forward(self, x, mask=None, past_kv=None):
+    def forward(self, x, mask = None, past_kv = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, past_len+seq_len), True=屏蔽, broadcast到batch和num_heads维度
@@ -253,8 +253,8 @@ class MultiHeadAttention(nn.Module):
         if past_kv is not None:
             past_k, past_v = past_kv
             # 新旧KV在seq_len维度拼接: (batch, num_heads, past_len+seq_len, head_dim)
-            K = torch.cat([past_k, K], dim=-2)
-            V = torch.cat([past_v, V], dim=-2)
+            K = torch.cat([past_k, K], dim = -2)
+            V = torch.cat([past_v, V], dim = -2)
         new_kv = (K, V)  # 更新KV Cache
         
         # 计算注意力得分并添加掩码, scores:(batch, num_heads, seq_len, past_len+seq_len)
@@ -263,7 +263,7 @@ class MultiHeadAttention(nn.Module):
             scores = scores.masked_fill(mask, float('-inf'))
         
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, num_heads, seq_len, past_len+seq_len)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, num_heads, seq_len, past_len+seq_len)
         out = torch.matmul(attn_weights, V)  # out: (batch, num_heads, seq_len, head_dim)
         
         # 合并多头结果
@@ -282,13 +282,13 @@ d_model = 8
 num_heads = 2
 steps = 5
 
-mha = MultiHeadAttention(d_model=d_model, num_heads=num_heads)
+mha = MultiHeadAttention(d_model = d_model, num_heads = num_heads)
 past_kv = None
 
 for t in range(steps):
   # 自回归推理时，每一步只输入当前新 token
   x = torch.randn(batch, 1, d_model)
-  out, past_kv = mha(x, past_kv=past_kv)
+  out, past_kv = mha(x, past_kv = past_kv)
 
   print(f"step {t + 1}")
   print("out:", out.shape)
@@ -336,12 +336,12 @@ class MultiQueryAttention(nn.Module):
         self.head_dim = d_model // num_heads
         
         # KV只有一个头的参数量
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.k_proj = nn.Linear(d_model, self.head_dim, bias=False)
-        self.v_proj = nn.Linear(d_model, self.head_dim, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.k_proj = nn.Linear(d_model, self.head_dim, bias = False)
+        self.v_proj = nn.Linear(d_model, self.head_dim, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
         
-    def forward(self, x, mask=None):
+    def forward(self, x, mask = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, seq_len), True=屏蔽, broadcast到batch和num_heads维度
@@ -365,7 +365,7 @@ class MultiQueryAttention(nn.Module):
             scores = scores.masked_fill(mask, float("-inf"))  # mask: (batch, 1, seq_len, seq_len)
         
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, num_heads, seq_len, seq_len)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, num_heads, seq_len, seq_len)
         out = torch.matmul(attn_weights, V)  # out: (batch, num_heads, seq_len, head_dim)
         
         # 合并多头结果
@@ -384,9 +384,9 @@ d_model = 8
 num_heads = 2
 
 x = torch.randn(batch, seq_len, d_model)
-mqa = MultiQueryAttention(d_model=d_model, num_heads=num_heads)
-mask = torch.triu(torch.ones(seq_len, seq_len, dtype=torch.bool), diagonal=1)
-out = mqa(x, mask=mask)
+mqa = MultiQueryAttention(d_model = d_model, num_heads = num_heads)
+mask = torch.triu(torch.ones(seq_len, seq_len, dtype = torch.bool), diagonal = 1)
+out = mqa(x, mask = mask)
 ```
 
 ### 2.4 Grouped-Query Attention (GQA)
@@ -410,13 +410,13 @@ class GroupedQueryAttention(nn.Module):
         self.head_dim = d_model // num_q_heads
         self.num_groups = num_q_heads // num_kv_heads
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
         # kv的线性层映射到 head_dim * num_kv_heads 维
-        self.k_proj = nn.Linear(d_model, self.head_dim * self.num_kv_heads, bias=False)
-        self.v_proj = nn.Linear(d_model, self.head_dim * self.num_kv_heads, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.k_proj = nn.Linear(d_model, self.head_dim * self.num_kv_heads, bias = False)
+        self.v_proj = nn.Linear(d_model, self.head_dim * self.num_kv_heads, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
         
-    def forward(self, x, mask=None):
+    def forward(self, x, mask = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, seq_len), True=屏蔽, broadcast到batch和num_q_heads维度
@@ -436,8 +436,8 @@ class GroupedQueryAttention(nn.Module):
         V = V.view(batch, seq_len, self.num_kv_heads, self.head_dim).transpose(1, 2)
         
         # 扩展KV: (batch, num_q_heads, seq_len, head_dim)
-        K = K.repeat_interleave(self.num_groups, dim=1)
-        V = V.repeat_interleave(self.num_groups, dim=1)
+        K = K.repeat_interleave(self.num_groups, dim = 1)
+        V = V.repeat_interleave(self.num_groups, dim = 1)
         
         # 计算注意力得分并添加掩码, scores: (batch, num_q_heads, seq_len, seq_len)
         scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.head_dim)
@@ -445,7 +445,7 @@ class GroupedQueryAttention(nn.Module):
             scores = scores.masked_fill(mask, float('-inf'))
         
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, num_q_heads, seq_len, seq_len)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, num_q_heads, seq_len, seq_len)
         out = torch.matmul(attn_weights, V)  # out: (batch, num_q_heads, seq_len, head_dim)
         
         # 合并多头结果
@@ -466,17 +466,17 @@ num_kv_heads = 2
 x = torch.randn(batch, seq_len, d_model)
 
 gqa = GroupedQueryAttention(
-  d_model=d_model,
-  num_q_heads=num_q_heads,
-  num_kv_heads=num_kv_heads
+  d_model = d_model,
+  num_q_heads = num_q_heads,
+  num_kv_heads = num_kv_heads
 )
 
 mask = torch.triu(
-  torch.ones(seq_len, seq_len, dtype=torch.bool),
-  diagonal=1,
+  torch.ones(seq_len, seq_len, dtype = torch.bool),
+  diagonal = 1,
 )
 
-out = gqa(x, mask=mask)
+out = gqa(x, mask = mask)
 ```
 
 **pytorch 相关基础**
@@ -501,13 +501,13 @@ class MultiHeadLatentAttention(nn.Module):
         self.num_heads = num_heads
         self.head_dim = d_model // num_heads
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.kv_down_proj = nn.Linear(d_model, latent_dim, bias=False)
-        self.k_up_proj = nn.Linear(latent_dim, d_model, bias=False)
-        self.v_up_proj = nn.Linear(latent_dim, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.kv_down_proj = nn.Linear(d_model, latent_dim, bias = False)
+        self.k_up_proj = nn.Linear(latent_dim, d_model, bias = False)
+        self.v_up_proj = nn.Linear(latent_dim, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
         
-    def forward(self, x, mask=None, past_latent_kv=None):
+    def forward(self, x, mask = None, past_latent_kv = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, past_len + seq_len)
@@ -524,7 +524,7 @@ class MultiHeadLatentAttention(nn.Module):
         past_len = past_latent_kv.size(-2) if past_latent_kv is not None else 0
         if past_latent_kv is not None:
             # 新旧latent_kv在seq_len维度拼接: (batch, past_len+seq_len, latent_dim)
-            latent_kv = torch.cat([past_latent_kv, latent_kv], dim=-2)
+            latent_kv = torch.cat([past_latent_kv, latent_kv], dim = -2)
         new_latent_kv = latent_kv
         
         # 潜变量还原
@@ -543,7 +543,7 @@ class MultiHeadLatentAttention(nn.Module):
             scores = scores.masked_fill(mask, float('-inf'))
         
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, num_heads, seq_len, past_len + seq_len)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, num_heads, seq_len, past_len + seq_len)
         out = torch.matmul(attn_weights, V)  # out: (batch, num_heads, seq_len, head_dim)
         
         # 合并多头结果
@@ -565,7 +565,7 @@ import torch
 import torch.nn as nn
 
 class LayerNorm(nn.Module):
-    def __init__(self, d_model, eps=1e-5):
+    def __init__(self, d_model, eps = 1e-5):
         super().__init__()
         self.eps = eps
         # 初始化gamma=1,beta=0
@@ -577,8 +577,8 @@ class LayerNorm(nn.Module):
         x: (batch, seq_len, d_model)
         """
         # 计算均值和方差
-        mean = x.mean(dim=-1, keepdim=True)
-        var = x.var(dim=-1, keepdim=True, unbiased=False)
+        mean = x.mean(dim = -1, keepdim = True)
+        var = x.var(dim = -1, keepdim = True, unbiased = False)
         
         #归一化并缩放平移
         x = (x - mean) / torch.sqrt(var + self.eps)
@@ -599,7 +599,7 @@ import torch
 import torch.nn as nn
 
 class RMSNorm(nn.Module):
-    def __init__(self, d_model, eps=1e-5):
+    def __init__(self, d_model, eps = 1e-5):
         super().__init__()
         self.eps = eps
         self.gamma = nn.Parameter(torch.ones(d_model))
@@ -609,7 +609,7 @@ class RMSNorm(nn.Module):
         x: (batch, seq_len, d_model)
         """
         # 计算均方根
-        rms = torch.sqrt(torch.mean(x ** 2, dim=-1, keepdim=True) + self.eps)
+        rms = torch.sqrt(torch.mean(x ** 2, dim = -1, keepdim = True) + self.eps)
         
         # 归一化并缩放
         x = x / rms
@@ -659,7 +659,7 @@ import torch
 import torch.nn as nn
 
 class RoPE(nn.Module):
-    def __init__(self, d_model, base=10000):
+    def __init__(self, d_model, base = 10000):
         super().__init__()
         assert d_model % 2 == 0
         
@@ -675,11 +675,11 @@ class RoPE(nn.Module):
         device = x.device
         
         # 生成频率, freq: (d_model / 2,)
-        dim = torch.arange(0, self.d_model, 2, device=device)  # dim: (d_model / 2,)
+        dim = torch.arange(0, self.d_model, 2, device = device)  # dim: (d_model / 2,)
         freq = self.base ** (-dim / self.d_model)
         
         # 生成旋转角, theta: (seq_len, d_model / 2)
-        pos = torch.arange(seq_len, device=device)  # pos: (seq_len,)
+        pos = torch.arange(seq_len, device = device)  # pos: (seq_len,)
         theta = torch.outer(pos, freq)
         
         # 计算正弦余弦值, cos/sin: (seq_len, d_model / 2)
@@ -724,14 +724,14 @@ class SelfAttention(nn.Module):
 
         self.d_model = d_model
 
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.k_proj = nn.Linear(d_model, d_model, bias=False)
-        self.v_proj = nn.Linear(d_model, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.k_proj = nn.Linear(d_model, d_model, bias = False)
+        self.v_proj = nn.Linear(d_model, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
 
         self.rope = RoPE(d_model)
 
-    def forward(self, x, mask=None):
+    def forward(self, x, mask = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, seq_len), True=屏蔽, broadcast到batch维度
@@ -748,7 +748,7 @@ class SelfAttention(nn.Module):
         if mask is not None:
             scores = scores.masked_fill(mask, float("-inf"))
 
-        attn_weights = F.softmax(scores, dim=-1)
+        attn_weights = F.softmax(scores, dim = -1)
         out = torch.matmul(attn_weights, V)
 
         return self.o_proj(out)
@@ -779,9 +779,9 @@ import torch.nn.functional as F
 class SwiGLU(nn.Module):
     def __init__(self, d_model, d_ff):
         super().__init__()
-        self.W1 = nn.Linear(d_model, d_ff, bias=False)  # gate_proj
-        self.W3 = nn.Linear(d_model, d_ff, bias=False)  # up_proj
-        self.W2 = nn.Linear(d_ff, d_model, bias=False)  # down_proj
+        self.W1 = nn.Linear(d_model, d_ff, bias = False)  # gate_proj
+        self.W3 = nn.Linear(d_model, d_ff, bias = False)  # up_proj
+        self.W2 = nn.Linear(d_ff, d_model, bias = False)  # down_proj
         
     def forward(self, x):
         """
@@ -822,13 +822,13 @@ class TransformerBlock(nn.Module):
         self.norm1 = RMSNorm(d_model)
         self.norm2 = RMSNorm(d_model)
         
-    def forward(self, x, mask=None):
+    def forward(self, x, mask = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, seq_len), causal mask / padding mask
         """
         # Pre-LN + MHA + Residual Connection
-        x = x + self.attn(self.norm1(x), mask=mask)
+        x = x + self.attn(self.norm1(x), mask = mask)
         # Pre-LN + FFN + Residual Connection
         x = x + self.ffn(self.norm2(x))
         return x
@@ -845,9 +845,9 @@ class DecoderOnlyTransformer(nn.Module):
         )  # 注意力层
         
         self.norm = RMSNorm(d_model)  # 归一化层
-        self.lm_head = nn.Linear(d_model, vocab_size, bias=False)  # 输出头
+        self.lm_head = nn.Linear(d_model, vocab_size, bias = False)  # 输出头
         
-    def forward(self, input_ids, mask=None):
+    def forward(self, input_ids, mask = None):
         """
         input_ids: (batch, seq_len)
         mask: (seq_len, seq_len)
@@ -857,13 +857,13 @@ class DecoderOnlyTransformer(nn.Module):
         device = input_ids.device
         
         # 词嵌入并添加可学习位置编码
-        pos = torch.arange(seq_len, device=device)  # pos: (seq_len,)
+        pos = torch.arange(seq_len, device = device)  # pos: (seq_len,)
         pos = pos.unsqueeze(0)  # pos: (1, seq_len), broadcast到batch维度
         x = self.token_emb(input_ids) + self.pos_emb(pos)  # x: (batch, seq_len, d_model)
         
         # 注意力层处理，处理过程中始终保持x: (batch, seq_len, d_model)
         for layer in self.layers:
-            x = layer(x, mask=mask)
+            x = layer(x, mask = mask)
         
         x = self.norm(x)  # 归一化层
         logits = self.lm_head(x)  # 输出头, logits: (batch, seq_len, vocab_size)
@@ -877,22 +877,22 @@ class DecoderOnlyTransformer(nn.Module):
 import torch
 import torch.nn.functional as F
 
-def top_k_sampling(logits, k=50, temperature=1.0):
+def top_k_sampling(logits, k = 50, temperature = 1.0):
     """
     logits: (batch, vocab_size)
     return: (batch, 1)
     """
     if temperature <= 0:  # temperature=0即贪心搜索
-        return torch.argmax(logits, dim=-1, keepdim=True)
+        return torch.argmax(logits, dim = -1, keepdim = True)
     
     # 温度+top-k采样, topk_logits/idx: (batch, k)
     logits = logits / temperature
-    topk_logits, topk_idx = torch.topk(logits, k, dim=-1)
+    topk_logits, topk_idx = torch.topk(logits, k, dim = -1)
     
     # 只对top-k进行softmax归一化，并取下标映射回原始id
-    probs = F.softmax(topk_logits, dim=-1)  # probs: (batch, k)
-    sampled_idx = torch.multinomial(probs, num_samples=1)  # sampled_idx: (batch, 1)
-    next_token = torch.gather(topk_idx, dim=-1, index=sampled_idx)  # next_token: (batch, 1)
+    probs = F.softmax(topk_logits, dim = -1)  # probs: (batch, k)
+    sampled_idx = torch.multinomial(probs, num_samples = 1)  # sampled_idx: (batch, 1)
+    next_token = torch.gather(topk_idx, dim = -1, index = sampled_idx)  # next_token: (batch, 1)
     return next_token
 ```
 
@@ -909,24 +909,24 @@ num_layers = 6
 max_seq_len = 1024
 
 model = DecoderOnlyTransformer(
-  vocab_size=vocab_size,
-  d_model=d_model,
-  num_heads=num_heads,
-  d_ff=d_ff,
-  num_layers=num_layers,
-  max_seq_len=max_seq_len
+  vocab_size = vocab_size,
+  d_model = d_model,
+  num_heads = num_heads,
+  d_ff = d_ff,
+  num_layers = num_layers,
+  max_seq_len = max_seq_len
 )
 
 input_ids = torch.randint(0, vocab_size, (batch, seq_len))
 
 mask = torch.triu(
-  torch.ones(seq_len, seq_len, dtype=torch.bool),
-  diagonal=1
+  torch.ones(seq_len, seq_len, dtype = torch.bool),
+  diagonal = 1
 )
 
-logits = model(input_ids, mask=mask)  # logits: (batch, seq_len, vocab_size)
+logits = model(input_ids, mask = mask)  # logits: (batch, seq_len, vocab_size)
 
-next_token_id = top_k_sampling(logits, k=50, temperature=0.8)  # next_token_id: (batch,)
+next_token_id = top_k_sampling(logits, k = 50, temperature = 0.8)  # next_token_id: (batch,)
 ```
 
 **pytorch 相关基础**:
@@ -938,10 +938,10 @@ next_token_id = top_k_sampling(logits, k=50, temperature=0.8)  # next_token_id: 
 - 一般 `F.softmax` 本身内部已经做了数值稳定处理，但如果要显式地展示“防止溢出”技巧，可以手动先减最大值：
 
 ```python
-def softmax(x, dim=-1):
-    x = x - x.max(dim=dim, keepdim=True).values
+def softmax(x, dim = -1):
+    x = x - x.max(dim = dim, keepdim = True).values
     exp_x = torch.exp(x)
-    return exp_x / exp_x.sum(dim=dim, keepdim=True)
+    return exp_x / exp_x.sum(dim = dim, keepdim = True)
 ```
 
 - `torch.multinomial()` 会在传入的参数中按数值比例采样，返回下标。要求输入只能是 1D 或 2D 的非负张量，`multinomial()` 会自动按权重比例采样（不一定求和要为1）。对于二维输入，默认对行采样，采样数量由 `num_samples` 决定。
@@ -970,13 +970,13 @@ class TransformerBlock(nn.Module):
         self.norm1 = RMSNorm(d_model)
         self.norm2 = RMSNorm(d_model)
         
-    def forward(self, x, mask=None, past_kv=None):
+    def forward(self, x, mask = None, past_kv = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, seq_len), causal mask / padding mask
         """
         # Pre-LN + MHA + Residual Connection
-        attn_out, new_kv = self.attn(self.norm1(x), mask=mask, past_kv=past_kv)
+        attn_out, new_kv = self.attn(self.norm1(x), mask = mask, past_kv = past_kv)
         x = x + attn_out
         # Pre-LN + FFN + Residual Connection
         x = x + self.ffn(self.norm2(x))
@@ -994,9 +994,9 @@ class DecoderOnlyTransformer(nn.Module):
         )  # 注意力层
         
         self.norm = RMSNorm(d_model)  # 归一化层
-        self.lm_head = nn.Linear(d_model, vocab_size, bias=False)  # 输出头
+        self.lm_head = nn.Linear(d_model, vocab_size, bias = False)  # 输出头
         
-    def forward(self, input_ids, mask=None, past_kv=None):
+    def forward(self, input_ids, mask = None, past_kv = None):
         """
         input_ids: (batch, seq_len)，带KV Cache的情形下一般seq_len=1
         mask: (seq_len, seq_len)
@@ -1010,7 +1010,7 @@ class DecoderOnlyTransformer(nn.Module):
         past_len = past_kv[0][0].size(-2) if past_kv is not None else 0
         
         # 词嵌入并添加可学习位置编码，注意位置编码应是第past_len到past_len+seq_len之间的位置
-        pos = torch.arange(past_len, past_len + seq_len, device=device)  # pos: (seq_len,)
+        pos = torch.arange(past_len, past_len + seq_len, device = device)  # pos: (seq_len,)
         pos = pos.unsqueeze(0)  # pos: (1, seq_len), broadcast到batch维度
         x = self.token_emb(input_ids) + self.pos_emb(pos)  # x: (batch, seq_len, d_model)
         
@@ -1018,7 +1018,7 @@ class DecoderOnlyTransformer(nn.Module):
         new_past_kv = []
         for i, layer in enumerate(self.layers):
             layer_past_kv = None if past_kv is None else past_kv[i]
-            x, layer_new_kv = layer(x, mask=mask, past_kv=layer_past_kv)
+            x, layer_new_kv = layer(x, mask = mask, past_kv = layer_past_kv)
             new_past_kv.append(layer_new_kv)
         
         x = self.norm(x)  # 归一化层
@@ -1039,12 +1039,12 @@ num_layers = 6
 max_seq_len = 1024
 
 model = DecoderOnlyTransformer(
-  vocab_size=vocab_size,
-  d_model=d_model,
-  num_heads=num_heads,
-  d_ff=d_ff,
-  num_layers=num_layers,
-  max_seq_len=max_seq_len
+  vocab_size = vocab_size,
+  d_model = d_model,
+  num_heads = num_heads,
+  d_ff = d_ff,
+  num_layers = num_layers,
+  max_seq_len = max_seq_len
 )
 
 past_kv = None
@@ -1056,8 +1056,8 @@ for step in range(5):
 
   logits, past_kv = model(
       input_ids,
-      mask=None,
-      past_kv=past_kv
+      mask = None,
+      past_kv = past_kv
   )
 ```
 
@@ -1092,7 +1092,7 @@ shift_logits = logits[:, :-1, :].contiguous()
 # shift_labels: (batch, seq_len-1)，去掉第一个token（起始不需要预测）
 shift_labels = labels[:, 1:].contiguous()
 
-loss = F.cross_entropy(shift_logits.view(-1, vocab_size), shift_labels.view(-1), ignore_index=-100)
+loss = F.cross_entropy(shift_logits.view(-1, vocab_size), shift_labels.view(-1), ignore_index = -100)
 ```
 
 自己实现 `cross_entropy`（一般不强制要求 `ignore_index` 参数）：
@@ -1106,14 +1106,14 @@ def cross_entropy(logits, labels):
     labels: (batch * (seq_len-1),)
     """
     # 防止softmax溢出, logits: (batch * (seq_len-1), vocab_size)
-    logits = logits - torch.max(logits, dim=-1, keepdim=True).values
+    logits = logits - torch.max(logits, dim = -1, keepdim = True).values
     # log_softmax: (batch * (seq_len-1), vocab_size)
     exp_logits = torch.exp(logits)
-    probs = exp_logits / exp_logits.sum(dim=-1, keepdim=True)
+    probs = exp_logits / exp_logits.sum(dim = -1, keepdim = True)
     log_probs = torch.log(probs)
     # 取对应标签id对应位置的负对数
     n = labels.size(0)
-    loss = -log_probs[torch.arange(n, device=labels.device), labels]
+    loss = -log_probs[torch.arange(n, device = labels.device), labels]
     return loss.mean()
 
 # logits: (batch, seq_len, vocab_size)
@@ -1201,7 +1201,7 @@ def dpo_loss(
     policy_rejected_logps,
     ref_chosen_logps,
     ref_rejected_logps,
-    beta=0.1
+    beta = 0.1
 ):
     """
     logps: (batch,) 每个值代表每条整段response的对数概率。
@@ -1232,16 +1232,16 @@ def get_sequence_logps(logits, labels, response_mask):
     shift_mask = response_mask[:, 1:]  # shift_mask: (batch, seq_len-1)
 
     # 转换成对数softmax概率, log_probs: (batch, seq_len-1, vocab_size)
-    log_probs = F.log_softmax(shift_logits, dim=-1)
+    log_probs = F.log_softmax(shift_logits, dim = -1)
     
     # 取出response token的对数概率, token_logps: (batch, seq_len-1, vocab_size)
     token_logps = log_probs.gather(
-      dim=-1,
-      index=shift_labels.unsqueeze(-1)  # (batch, seq_len-1, 1)，在vocab维度上gather
+      dim = -1,
+      index = shift_labels.unsqueeze(-1)  # (batch, seq_len-1, 1)，在vocab维度上gather
     ).squeeze(-1)
     
     # 过滤non-response token
-    sequence_logps = (token_logps * shift_mask).sum(dim=-1)
+    sequence_logps = (token_logps * shift_mask).sum(dim = -1)
     
     return sequence_logps
 
@@ -1260,7 +1260,7 @@ loss = dpo_loss(
     policy_rejected_logps,
     ref_chosen_logps,
     ref_rejected_logps,
-    beta=0.1
+    beta = 0.1
 )
 ```
 
@@ -1324,7 +1324,7 @@ r_t(\theta)
 ```python
 import torch
 
-def mask_mean(loss, mask=None):
+def mask_mean(loss, mask = None):
     if mask is not None:
         return (loss * mask).sum() / mask.sum()
     else:
@@ -1336,11 +1336,11 @@ def ppo_loss(
     advantages,
     values,
     returns,
-    mask=None,
-    ref_logprobs=None,
-    clip_eps=0.2,
-    value_coef=0.5,
-    kl_coef=0.1
+    mask = None,
+    ref_logprobs = None,
+    clip_eps = 0.2,
+    value_coef = 0.5,
+    kl_coef = 0.1
 ):
     """
     new_logprobs: (batch, seq_len) 每时间步下新策略模型输出的对数概率
@@ -1356,7 +1356,7 @@ def ppo_loss(
     ratio = torch.exp(new_logprobs - old_logprobs)  # 新旧策略概率比r_t，去对数处理
     
     unclipped = ratio * advantages
-    clipped = torch.clamp(ratio, min=1.0-clip_eps, max=1.0+clip_eps) * advantages
+    clipped = torch.clamp(ratio, min = 1.0-clip_eps, max = 1.0+clip_eps) * advantages
     policy_loss = -torch.min(unclipped, clipped)
     policy_loss = mask_mean(policy_loss, mask)
     
@@ -1399,8 +1399,8 @@ def advantage_estimate(
     rewards,
     values,
     dones,
-    gamma=0.99,
-    lam=0.95
+    gamma = 0.99,
+    lam = 0.95
 ):
     """
     rewards/values: (batch, seq_len)
@@ -1411,13 +1411,13 @@ def advantage_estimate(
     batch, seq_len = rewards.shape
     device = rewards.device
     advantages = torch.zeros_like(rewards)  # advantages: (batch, seq_len)
-    last_gae_lam = torch.zeros(batch, device=device)  # last_gae_lam: (batch,)
+    last_gae_lam = torch.zeros(batch, device = device)  # last_gae_lam: (batch,)
     
     #
     for t in reversed(range(seq_len)):
         # 计算下一时刻起的values: V(s_{t+1})
         if t == seq_len - 1:
-            next_values = torch.zeros(batch, device=device)
+            next_values = torch.zeros(batch, device = device)
         else:
             next_values = values[:, t+1]
         next_non_terminal = 1.0 - dones[:, t]  # 是否达到该轨迹末端
@@ -1571,7 +1571,7 @@ r_tA_t,\
 ```python
 import torch
 
-def mask_mean(loss, mask=None):
+def mask_mean(loss, mask = None):
     if mask is not None:
         return (loss * mask).sum() / mask.sum()
     else:
@@ -1582,11 +1582,11 @@ def grpo_loss(
     old_logprobs,
     rewards,
     group_size,
-    mask=None,
-    ref_logprobs=None,
-    clip_eps=0.2,
-    kl_coef=0.1,
-    eps=1e-8
+    mask = None,
+    ref_logprobs = None,
+    clip_eps = 0.2,
+    kl_coef = 0.1,
+    eps = 1e-8
 ):
     """
     new_logprobs: (batch, seq_len) 每时间步下新策略模型输出的对数概率
@@ -1605,15 +1605,15 @@ def grpo_loss(
     
     # 1. 计算相对优势
     group_rewards = rewards.view(num_group, group_size)  # group_rewards: (num_group, group_size)
-    group_mean = group_rewards.mean(dim=-1, keepdim=True)  # group_mean: (num_group, 1)
-    group_std = group_rewards.std(dim=-1, keepdim=True, unbiased=False)  # group_std: (num_group, 1)
+    group_mean = group_rewards.mean(dim = -1, keepdim = True)  # group_mean: (num_group, 1)
+    group_std = group_rewards.std(dim = -1, keepdim = True, unbiased = False)  # group_std: (num_group, 1)
     advantages = (group_rewards - group_mean) / (group_std + eps)  # advantages: (num_group, group_size)
     advantages = advantages.view(batch, 1)  # advantages: (batch, 1)
     
     # 2. policy_loss
     ratio = torch.exp(new_logprobs - old_logprobs)
     unclipped = ratio * advantages
-    clipped = torch.clamp(ratio, min=1.0-clip_eps, max=1.0+clip_eps) * advantages
+    clipped = torch.clamp(ratio, min = 1.0-clip_eps, max = 1.0+clip_eps) * advantages
     policy_loss = -torch.min(unclipped, clipped)
     policy_loss = mask_mean(policy_loss, mask)
     
@@ -1644,7 +1644,7 @@ def greedy_decode(logits):
     logits: (batch, vocab_size)
     return: (batch, 1) 返回next_token
     """
-    next_token = torch.argmax(logits, dim=-1, keepdim=True)
+    next_token = torch.argmax(logits, dim = -1, keepdim = True)
     return next_token
 ```
 
@@ -1664,7 +1664,7 @@ next_token = greedy_decode(next_token_logits)  # next_token: (batch, 1)
 ```python
 import torch
 
-def greedy_search(model, input_ids, max_new_token, eos_token_id=None):
+def greedy_search(model, input_ids, max_new_token, eos_token_id = None):
     """
     model: decoder-only LM
     input_ids: (batch, prompt_len) 用户输入的prompt
@@ -1680,9 +1680,9 @@ def greedy_search(model, input_ids, max_new_token, eos_token_id=None):
         # 只取最后一个token预测
         next_token_logits = logits[:, -1, :]  # next_token_logits: (batch, vocab_size)
         # 贪心解码
-        next_token = torch.argmax(next_token_logits, dim=-1, keepdim=True)  # next_token: (batch, 1)
+        next_token = torch.argmax(next_token_logits, dim = -1, keepdim = True)  # next_token: (batch, 1)
         # 在序列维度合并到已生成序列
-        generated = torch.cat([generated, next_token], dim=1)
+        generated = torch.cat([generated, next_token], dim = 1)
         if eos_token_id is not None and (next_token == eos_token_id).all():
             break
     return generated
@@ -1700,7 +1700,7 @@ def greedy_search(model, input_ids, max_new_token, eos_token_id=None):
 import torch
 import torch.nn.functional as F
 
-def beam_search(model, input_ids, max_new_tokens, beam_size=4, eos_token_id=None):
+def beam_search(model, input_ids, max_new_tokens, beam_size = 4, eos_token_id = None):
     """
     model: decoder-only LM
     input_ids: (batch, prompt_len) 用户输入的prompt
@@ -1714,14 +1714,14 @@ def beam_search(model, input_ids, max_new_tokens, beam_size=4, eos_token_id=None
     input_ids = input_ids.unsqueeze(1).repeat(1, beam_size, 1)  # input_ids: (batch, beam_size, prompt_len)
     input_ids = input_ids.view(batch * beam_size, prompt_len)  # input_ids: (batch * beam_size, prompt_len)
     # 初始化beam分数, beam_scores: (batch, beam_size)
-    beam_scores = torch.zeros(batch, beam_size, device=input_ids.device)
+    beam_scores = torch.zeros(batch, beam_size, device = input_ids.device)
     beam_scores[:, 1:] = -1e9  # 初始序列都是prompt，第一步生成一次即可，其他分数设为负无穷
     
     for _ in range(max_new_tokens):
         # step1: 生成对数概率
         logits = model(input_ids)  # logits: (batch * beam_size, seq_len, vocab_size)
         next_token_logits = logits[:, -1, :]  # next_token_logits: (batch * beam_size, vocab_size)
-        logprobs = F.log_softmax(next_token_logits, dim=-1)  # logprobs: (batch * beam_size, vocab_size) 经softmax归一化以后的对数概率
+        logprobs = F.log_softmax(next_token_logits, dim = -1)  # logprobs: (batch * beam_size, vocab_size) 经softmax归一化以后的对数概率
         vocab_size = logits.size(-1)
         logprobs = logprobs.view(batch, beam_size, vocab_size)  # logprobs: (batch, beam_size, vocab_size)
         
@@ -1731,7 +1731,7 @@ def beam_search(model, input_ids, max_new_tokens, beam_size=4, eos_token_id=None
         
         # step3: 取出得分最高的beam_size条路径信息，并追溯beam_id, token_id
         # next_scores/ids/beam_ids/tokens: (batch, beam_size)
-        next_scores, next_ids = torch.topk(scores, beam_size, dim=-1)
+        next_scores, next_ids = torch.topk(scores, beam_size, dim = -1)
         next_beam_ids = next_ids // vocab_size  # 追溯来自哪条beam
         next_tokens = next_ids % vocab_size  # 追溯token id
         
@@ -1739,10 +1739,10 @@ def beam_search(model, input_ids, max_new_tokens, beam_size=4, eos_token_id=None
         input_ids = input_ids.view(batch, beam_size, -1)  # input_ids: (batch, beam_size, seq_len)
         # 为了能从input_ids中gather出next_beam_ids的对应beam，要保证它们维度相同
         gather_ids = next_beam_ids.unsqueeze(-1).expand(batch, beam_size, input_ids.size(-1))
-        input_ids = torch.gather(input_ids, dim=1, index=gather_ids)  # input_ids: (batch, beam_size, seq_len)
+        input_ids = torch.gather(input_ids, dim = 1, index = gather_ids)  # input_ids: (batch, beam_size, seq_len)
         
         # step5: 拼接新token并更新beam_scores, 重新展平input_ids作为下一轮模型输入
-        input_ids = torch.cat([input_ids, next_tokens.unsqueeze(-1)], dim=-1)  # input_ids: (batch, beam_size, seq_len+1)
+        input_ids = torch.cat([input_ids, next_tokens.unsqueeze(-1)], dim = -1)  # input_ids: (batch, beam_size, seq_len+1)
         beam_scores = next_scores
         input_ids = input_ids.view(batch * beam_size, -1)  # input_ids: (batch * beam_size, seq_len)
         
@@ -1768,17 +1768,17 @@ def beam_search(model, input_ids, max_new_tokens, beam_size=4, eos_token_id=None
 import torch
 import torch.nn.functional as F
 
-def temperature_sampling(logits, temperature=1.0):
+def temperature_sampling(logits, temperature = 1.0):
     """
     logits: (batch, vocab_size)
     return: (batch, 1)
     """
     if temperature <= 0:  # temperature=0即贪心搜索
-        return torch.argmax(logits, dim=-1, keepdim=True)
+        return torch.argmax(logits, dim = -1, keepdim = True)
     
     logits = logits / temperature  # logits: (batch, vocab_size)
-    probs = F.softmax(logits, dim=-1)  # probs: (batch, vocab_size)
-    next_token = torch.multinomial(probs, num_samples=1)  # next_token: (batch, 1)
+    probs = F.softmax(logits, dim = -1)  # probs: (batch, vocab_size)
+    next_token = torch.multinomial(probs, num_samples = 1)  # next_token: (batch, 1)
     return next_token
 ```
 
@@ -1790,22 +1790,22 @@ Top-k 采样。每次选取概率最高的 k 个 token 进行采样输出。
 import torch
 import torch.nn.functional as F
 
-def top_k_sampling(logits, k=50, temperature=1.0):
+def top_k_sampling(logits, k = 50, temperature = 1.0):
     """
     logits: (batch, vocab_size)
     return: (batch, 1)
     """
     if temperature <= 0:  # temperature=0即贪心搜索
-        return torch.argmax(logits, dim=-1, keepdim=True)
+        return torch.argmax(logits, dim = -1, keepdim = True)
     
     # 温度+top-k采样, topk_logits/idx: (batch, k)
     logits = logits / temperature
-    topk_logits, topk_idx = torch.topk(logits, k, dim=-1)
+    topk_logits, topk_idx = torch.topk(logits, k, dim = -1)
     
     # 只对top-k进行softmax归一化，并取下标映射回原始id
-    probs = F.softmax(topk_logits, dim=-1)  # probs: (batch, k)
-    sampled_idx = torch.multinomial(probs, num_samples=1)  # sampled_idx: (batch, 1)
-    next_token = torch.gather(topk_idx, dim=-1, index=sampled_idx)  # next_token: (batch, 1)
+    probs = F.softmax(topk_logits, dim = -1)  # probs: (batch, k)
+    sampled_idx = torch.multinomial(probs, num_samples = 1)  # sampled_idx: (batch, 1)
+    next_token = torch.gather(topk_idx, dim = -1, index = sampled_idx)  # next_token: (batch, 1)
     return next_token
 ```
 
@@ -1817,20 +1817,20 @@ Top-p 采样。每次从概率高到低选取累计概率至少覆盖 p 的 toke
 import torch
 import torch.nn.functional as F
 
-def top_p_sampling(logits, p=0.9, temperature=1.0):
+def top_p_sampling(logits, p = 0.9, temperature = 1.0):
     """
     logits: (batch, vocab_size)
     """
     if temperature <= 0:  # temperature=0即贪心搜索
-        return torch.argmax(logits, dim=-1, keepdim=True)
+        return torch.argmax(logits, dim = -1, keepdim = True)
     
     # 温度采样和降序排序, sorted_logits/idx: (batch, vocab_size)
     logits = logits / temperature
-    sorted_logits, sorted_idx = torch.sort(logits, dim=-1, descending=True)
+    sorted_logits, sorted_idx = torch.sort(logits, dim = -1, descending = True)
     
     # 计算累计概率, sorted_probs / cum_probs: (batch, vocab_size)
-    sorted_probs = F.softmax(sorted_logits, dim=-1)
-    cum_probs = torch.cumsum(sorted_probs, dim=-1)
+    sorted_probs = F.softmax(sorted_logits, dim = -1)
+    cum_probs = torch.cumsum(sorted_probs, dim = -1)
     
     # 大于p的位置使用掩码-inf, 并至少保留第一个超过p的token，使累计概率覆盖p
     sorted_mask = cum_probs > p
@@ -1839,9 +1839,9 @@ def top_p_sampling(logits, p=0.9, temperature=1.0):
     sorted_logits = sorted_logits.masked_fill(sorted_mask, float('-inf'))
     
     # 只对top-p进行softmax归一化，并进行采样，映射回原始下标
-    probs = F.softmax(sorted_logits, dim=-1)  # probs: (batch, vocab_size)
-    sampled_idx = torch.multinomial(probs, num_samples=1)  # sampled_idx: (batch, 1)
-    next_token = torch.gather(sorted_idx, dim=-1, index=sampled_idx)  # next_token: (batch, 1)
+    probs = F.softmax(sorted_logits, dim = -1)  # probs: (batch, vocab_size)
+    sampled_idx = torch.multinomial(probs, num_samples = 1)  # sampled_idx: (batch, 1)
+    next_token = torch.gather(sorted_idx, dim = -1, index = sampled_idx)  # next_token: (batch, 1)
     return next_token
 ```
 
@@ -1872,8 +1872,8 @@ class LoRALinear(nn.Module):
         in_dim = base_linear.in_features
         out_dim = base_linear.out_features
 
-        self.A = nn.Linear(in_dim, r, bias=False)
-        self.B = nn.Linear(r, out_dim, bias=False)
+        self.A = nn.Linear(in_dim, r, bias = False)
+        self.B = nn.Linear(r, out_dim, bias = False)
 
         nn.init.zeros_(self.B.weight)  # A初始随机化，B初始为0
 
@@ -1913,12 +1913,12 @@ class Expert(nn.Module):
         return self.net(x)
     
 class MoE(nn.Module):
-    def __init__(self, d_model, d_ff, num_experts, top_k=2):
+    def __init__(self, d_model, d_ff, num_experts, top_k = 2):
         super().__init__()
         self.num_experts = num_experts
         self.top_k = top_k
         
-        self.router = nn.Linear(d_model, num_experts, bias=False)
+        self.router = nn.Linear(d_model, num_experts, bias = False)
         self.experts = nn.ModuleList([Expert(d_model, d_ff) for _ in range(num_experts)])
         
     def forward(self, x):
@@ -1934,14 +1934,14 @@ class MoE(nn.Module):
         router_logits = self.router(x_flat)
         
         # 每个token选取top-k专家并重新归一化, topk_logits/idx/probs: (batch * seq_len, top_k)
-        topk_logits, topk_idx = torch.topk(router_logits, self.top_k, dim=-1)
-        topk_probs = F.softmax(topk_logits, dim=-1)
+        topk_logits, topk_idx = torch.topk(router_logits, self.top_k, dim = -1)
+        topk_probs = F.softmax(topk_logits, dim = -1)
         
         # 计算负载均衡损失，moe_aux_loss之后定义
         aux_loss = moe_aux_loss(
-            router_logits=router_logits, 
-            topk_idx=topk_idx, 
-            num_experts=self.num_experts
+            router_logits = router_logits, 
+            topk_idx = topk_idx, 
+            num_experts = self.num_experts
         )
         
         # 初始化输出, out_flat: (batch * seq_len, d_model)
@@ -1960,7 +1960,7 @@ class MoE(nn.Module):
             expert_output = expert(expert_input)
             # 对于每个token, 将权重回传, weight: (selected_len, 1)
             weight = topk_probs[token_idx, which_k].unsqueeze(-1)
-            out_flat.index_add_(dim=0, index=token_idx, source=expert_output * weight)
+            out_flat.index_add_(dim = 0, index = token_idx, source = expert_output * weight)
         
         # 将输出形状调整回去, out: (batch, seq_len, d_model)
         out = out_flat.view(batch, seq_len, d_model)
@@ -2034,12 +2034,12 @@ def moe_aux_loss(router_logits, topk_idx, num_experts):
     topk_idx: (num_tokens, top_k)
     """
     # 1.Router概率pi
-    router_probs = F.softmax(router_logits, dim=-1)  # router_probs: (num_tokens, num_experts)
-    pi = router_probs.mean(dim=0)  # pi: (num_experts,)
+    router_probs = F.softmax(router_logits, dim = -1)  # router_probs: (num_tokens, num_experts)
+    pi = router_probs.mean(dim = 0)  # pi: (num_experts,)
     
     # 2.token分配比例fi
-    expert_mask = F.one_hot(topk_idx, num_classes=num_experts).float()  # expert_mask: (num_tokens, top_k, num_experts)
-    fi = expert_mask.mean(dim=(0, 1))  # fi: (num_experts,)
+    expert_mask = F.one_hot(topk_idx, num_classes = num_experts).float()  # expert_mask: (num_tokens, top_k, num_experts)
+    fi = expert_mask.mean(dim = (0, 1))  # fi: (num_experts,)
     
     aux_loss = num_experts * torch.sum(pi * fi)
     return aux_loss

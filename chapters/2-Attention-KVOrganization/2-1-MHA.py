@@ -12,12 +12,12 @@ class MultiHeadAttention(nn.Module):
         self.num_heads = num_heads
         self.head_dim = d_model // num_heads
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.k_proj = nn.Linear(d_model, d_model, bias=False)
-        self.v_proj = nn.Linear(d_model, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.k_proj = nn.Linear(d_model, d_model, bias = False)
+        self.v_proj = nn.Linear(d_model, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
 
-    def forward(self, x, mask=None):
+    def forward(self, x, mask = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, seq_len), True=屏蔽, broadcast到batch和num_heads维度
@@ -41,7 +41,7 @@ class MultiHeadAttention(nn.Module):
             scores = scores.masked_fill(mask, float('-inf'))
             
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, num_heads, seq_len, seq_len)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, num_heads, seq_len, seq_len)
         out = torch.matmul(attn_weights, V)  # out: (batch, num_heads, seq_len, head_dim)
         
         # 合并多头结果
@@ -52,6 +52,6 @@ class MultiHeadAttention(nn.Module):
 
 if __name__ == "__main__":
     x = torch.randn(2, 4, 8)
-    mha = MultiHeadAttention(d_model=8, num_heads=2)
-    mask = torch.triu(torch.ones(4, 4, dtype=torch.bool), diagonal=1)
-    out = mha(x, mask=mask)
+    mha = MultiHeadAttention(d_model = 8, num_heads = 2)
+    mask = torch.triu(torch.ones(4, 4, dtype = torch.bool), diagonal = 1)
+    out = mha(x, mask = mask)

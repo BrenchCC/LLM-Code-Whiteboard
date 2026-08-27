@@ -8,12 +8,12 @@ class CrossAttention(nn.Module):
         super().__init__()
         self.d_model = d_model
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.k_proj = nn.Linear(d_model, d_model, bias=False)
-        self.v_proj = nn.Linear(d_model, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.k_proj = nn.Linear(d_model, d_model, bias = False)
+        self.v_proj = nn.Linear(d_model, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
         
-    def forward(self, x_q, x_kv, mask=None):
+    def forward(self, x_q, x_kv, mask = None):
         """
         x_q: (batch, seq_q, d_model)
         x_kv: (batch, seq_kv, d_model)
@@ -30,7 +30,7 @@ class CrossAttention(nn.Module):
             scores = scores.masked_fill(mask, float("-inf"))
         
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, seq_q, seq_kv)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, seq_q, seq_kv)
         out = torch.matmul(attn_weights, V)  # out: (batch, seq_q, d_model)
         
         return self.o_proj(out)  # return: (batch, seq_len, d_model)

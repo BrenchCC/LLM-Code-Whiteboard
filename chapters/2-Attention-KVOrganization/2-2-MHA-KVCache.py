@@ -11,12 +11,12 @@ class MultiHeadAttention(nn.Module):
         self.num_heads = num_heads
         self.head_dim = d_model // num_heads
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.k_proj = nn.Linear(d_model, d_model, bias=False)
-        self.v_proj = nn.Linear(d_model, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.k_proj = nn.Linear(d_model, d_model, bias = False)
+        self.v_proj = nn.Linear(d_model, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
         
-    def forward(self, x, mask=None, past_kv=None):
+    def forward(self, x, mask = None, past_kv = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, past_len+seq_len), True=屏蔽, broadcast到batch和num_heads维度
@@ -40,8 +40,8 @@ class MultiHeadAttention(nn.Module):
         if past_kv is not None:
             past_k, past_v = past_kv
             # 新旧KV在seq_len维度拼接: (batch, num_heads, past_len+seq_len, head_dim)
-            K = torch.cat([past_k, K], dim=-2)
-            V = torch.cat([past_v, V], dim=-2)
+            K = torch.cat([past_k, K], dim = -2)
+            V = torch.cat([past_v, V], dim = -2)
         new_kv = (K, V)  # 更新KV Cache
         
         # 计算注意力得分并添加掩码, scores:(batch, num_heads, seq_len, past_len+seq_len)
@@ -50,7 +50,7 @@ class MultiHeadAttention(nn.Module):
             scores = scores.masked_fill(mask, float('-inf'))
         
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, num_heads, seq_len, past_len+seq_len)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, num_heads, seq_len, past_len+seq_len)
         out = torch.matmul(attn_weights, V)  # out: (batch, num_heads, seq_len, head_dim)
         
         # 合并多头结果
@@ -66,13 +66,13 @@ if __name__ == "__main__":
     num_heads = 2
     steps = 5
     
-    mha = MultiHeadAttention(d_model=d_model, num_heads=num_heads)
+    mha = MultiHeadAttention(d_model = d_model, num_heads = num_heads)
     past_kv = None
     
     for t in range(steps):
       # 自回归推理时，每一步只输入当前新 token
       x = torch.randn(batch, 1, d_model)
-      out, past_kv = mha(x, past_kv=past_kv)
+      out, past_kv = mha(x, past_kv = past_kv)
     
       print(f"step {t + 1}")
       print("out:", out.shape)

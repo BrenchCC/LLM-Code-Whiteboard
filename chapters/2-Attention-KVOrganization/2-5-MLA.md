@@ -16,13 +16,13 @@ class MultiHeadLatentAttention(nn.Module):
         self.num_heads = num_heads
         self.head_dim = d_model // num_heads
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.kv_down_proj = nn.Linear(d_model, latent_dim, bias=False)
-        self.k_up_proj = nn.Linear(latent_dim, d_model, bias=False)
-        self.v_up_proj = nn.Linear(latent_dim, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.kv_down_proj = nn.Linear(d_model, latent_dim, bias = False)
+        self.k_up_proj = nn.Linear(latent_dim, d_model, bias = False)
+        self.v_up_proj = nn.Linear(latent_dim, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
         
-    def forward(self, x, mask=None, past_latent_kv=None):
+    def forward(self, x, mask = None, past_latent_kv = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, past_len + seq_len)
@@ -39,7 +39,7 @@ class MultiHeadLatentAttention(nn.Module):
         past_len = past_latent_kv.size(-2) if past_latent_kv is not None else 0
         if past_latent_kv is not None:
             # 新旧latent_kv在seq_len维度拼接: (batch, past_len+seq_len, latent_dim)
-            latent_kv = torch.cat([past_latent_kv, latent_kv], dim=-2)
+            latent_kv = torch.cat([past_latent_kv, latent_kv], dim = -2)
         new_latent_kv = latent_kv
         
         # 潜变量还原
@@ -58,7 +58,7 @@ class MultiHeadLatentAttention(nn.Module):
             scores = scores.masked_fill(mask, float('-inf'))
         
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, num_heads, seq_len, past_len + seq_len)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, num_heads, seq_len, past_len + seq_len)
         out = torch.matmul(attn_weights, V)  # out: (batch, num_heads, seq_len, head_dim)
         
         # 合并多头结果

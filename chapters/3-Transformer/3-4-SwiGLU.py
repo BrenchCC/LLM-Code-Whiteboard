@@ -5,9 +5,9 @@ import torch.nn.functional as F
 class SwiGLU(nn.Module):
     def __init__(self, d_model, d_ff):
         super().__init__()
-        self.W1 = nn.Linear(d_model, d_ff, bias=False)  # gate_proj
-        self.W3 = nn.Linear(d_model, d_ff, bias=False)  # up_proj
-        self.W2 = nn.Linear(d_ff, d_model, bias=False)  # down_proj
+        self.W1 = nn.Linear(d_model, d_ff, bias = False)  # gate_proj
+        self.W3 = nn.Linear(d_model, d_ff, bias = False)  # up_proj
+        self.W2 = nn.Linear(d_ff, d_model, bias = False)  # down_proj
         
     def forward(self, x):
         """

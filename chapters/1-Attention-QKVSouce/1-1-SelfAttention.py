@@ -8,12 +8,12 @@ class SelfAttention(nn.Module):
         super().__init__()
         self.d_model = d_model
         
-        self.q_proj = nn.Linear(d_model, d_model, bias=False)
-        self.k_proj = nn.Linear(d_model, d_model, bias=False)
-        self.v_proj = nn.Linear(d_model, d_model, bias=False)
-        self.o_proj = nn.Linear(d_model, d_model, bias=False)
+        self.q_proj = nn.Linear(d_model, d_model, bias = False)
+        self.k_proj = nn.Linear(d_model, d_model, bias = False)
+        self.v_proj = nn.Linear(d_model, d_model, bias = False)
+        self.o_proj = nn.Linear(d_model, d_model, bias = False)
         
-    def forward(self, x, mask=None):
+    def forward(self, x, mask = None):
         """
         x: (batch, seq_len, d_model)
         mask: (seq_len, seq_len), True=屏蔽, broadcast到batch维度
@@ -29,7 +29,7 @@ class SelfAttention(nn.Module):
             scores = scores.masked_fill(mask, float("-inf"))
         
         # 计算注意力权重和输出
-        attn_weights = F.softmax(scores, dim=-1)  # attn_weights: (batch, seq_len, seq_len)
+        attn_weights = F.softmax(scores, dim = -1)  # attn_weights: (batch, seq_len, seq_len)
         out = torch.matmul(attn_weights, V)  # out: (batch, seq_len, d_model)
         return self.o_proj(out)  # return: (batch, seq_len, d_model)
 
@@ -41,10 +41,10 @@ if __name__ == "__main__":
     
     # 不传mask的版本
     x = torch.randn(batch, seq_len, d_model)
-    attn = SelfAttention(d_model=d_model)
+    attn = SelfAttention(d_model = d_model)
     out = attn(x)
     
     # 传mask的版本
     x = torch.randn(batch, seq_len, d_model)
-    mask = torch.triu(torch.ones(seq_len, seq_len, dtype=torch.bool), diagonal=1)
-    out = attn(x, mask=mask)
+    mask = torch.triu(torch.ones(seq_len, seq_len, dtype = torch.bool), diagonal = 1)
+    out = attn(x, mask = mask)

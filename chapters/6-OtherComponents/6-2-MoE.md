@@ -30,12 +30,12 @@ class Expert(nn.Module):
         return self.net(x)
     
 class MoE(nn.Module):
-    def __init__(self, d_model, d_ff, num_experts, top_k=2):
+    def __init__(self, d_model, d_ff, num_experts, top_k = 2):
         super().__init__()
         self.num_experts = num_experts
         self.top_k = top_k
         
-        self.router = nn.Linear(d_model, num_experts, bias=False)
+        self.router = nn.Linear(d_model, num_experts, bias = False)
         self.experts = nn.ModuleList([Expert(d_model, d_ff) for _ in range(num_experts)])
         
     def forward(self, x):
@@ -51,14 +51,14 @@ class MoE(nn.Module):
         router_logits = self.router(x_flat)
         
         # 每个token选取top-k专家并重新归一化, topk_logits/idx/probs: (batch * seq_len, top_k)
-        topk_logits, topk_idx = torch.topk(router_logits, self.top_k, dim=-1)
-        topk_probs = F.softmax(topk_logits, dim=-1)
+        topk_logits, topk_idx = torch.topk(router_logits, self.top_k, dim = -1)
+        topk_probs = F.softmax(topk_logits, dim = -1)
         
         # 计算负载均衡损失，moe_aux_loss之后定义
         aux_loss = moe_aux_loss(
-            router_logits=router_logits, 
-            topk_idx=topk_idx, 
-            num_experts=self.num_experts
+            router_logits = router_logits, 
+            topk_idx = topk_idx, 
+            num_experts = self.num_experts
         )
         
         # 初始化输出, out_flat: (batch * seq_len, d_model)
@@ -77,7 +77,7 @@ class MoE(nn.Module):
             expert_output = expert(expert_input)
             # 对于每个token, 将权重回传, weight: (selected_len, 1)
             weight = topk_probs[token_idx, which_k].unsqueeze(-1)
-            out_flat.index_add_(dim=0, index=token_idx, source=expert_output * weight)
+            out_flat.index_add_(dim = 0, index = token_idx, source = expert_output * weight)
         
         # 将输出形状调整回去, out: (batch, seq_len, d_model)
         out = out_flat.view(batch, seq_len, d_model)
@@ -151,12 +151,12 @@ def moe_aux_loss(router_logits, topk_idx, num_experts):
     topk_idx: (num_tokens, top_k)
     """
     # 1.Router概率pi
-    router_probs = F.softmax(router_logits, dim=-1)  # router_probs: (num_tokens, num_experts)
-    pi = router_probs.mean(dim=0)  # pi: (num_experts,)
+    router_probs = F.softmax(router_logits, dim = -1)  # router_probs: (num_tokens, num_experts)
+    pi = router_probs.mean(dim = 0)  # pi: (num_experts,)
     
     # 2.token分配比例fi
-    expert_mask = F.one_hot(topk_idx, num_classes=num_experts).float()  # expert_mask: (num_tokens, top_k, num_experts)
-    fi = expert_mask.mean(dim=(0, 1))  # fi: (num_experts,)
+    expert_mask = F.one_hot(topk_idx, num_classes = num_experts).float()  # expert_mask: (num_tokens, top_k, num_experts)
+    fi = expert_mask.mean(dim = (0, 1))  # fi: (num_experts,)
     
     aux_loss = num_experts * torch.sum(pi * fi)
     return aux_loss

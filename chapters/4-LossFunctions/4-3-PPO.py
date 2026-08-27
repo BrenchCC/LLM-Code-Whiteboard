@@ -1,6 +1,6 @@
 import torch
 
-def mask_mean(loss, mask=None):
+def mask_mean(loss, mask = None):
     if mask is not None:
         return (loss * mask).sum() / mask.sum()
     else:
@@ -12,11 +12,11 @@ def ppo_loss(
     advantages,
     values,
     returns,
-    mask=None,
-    ref_logprobs=None,
-    clip_eps=0.2,
-    value_coef=0.5,
-    kl_coef=0.1
+    mask = None,
+    ref_logprobs = None,
+    clip_eps = 0.2,
+    value_coef = 0.5,
+    kl_coef = 0.1
 ):
     """
     new_logprobs: (batch, seq_len) 每时间步下新策略模型输出的对数概率
@@ -32,7 +32,7 @@ def ppo_loss(
     ratio = torch.exp(new_logprobs - old_logprobs)  # 新旧策略概率比r_t，去对数处理
     
     unclipped = ratio * advantages
-    clipped = torch.clamp(ratio, min=1.0-clip_eps, max=1.0+clip_eps) * advantages
+    clipped = torch.clamp(ratio, min = 1.0-clip_eps, max = 1.0+clip_eps) * advantages
     policy_loss = -torch.min(unclipped, clipped)
     policy_loss = mask_mean(policy_loss, mask)
     
@@ -59,8 +59,8 @@ def advantage_estimate(
     rewards,
     values,
     dones,
-    gamma=0.99,
-    lam=0.95
+    gamma = 0.99,
+    lam = 0.95
 ):
     """
     rewards/values: (batch, seq_len)
@@ -71,13 +71,13 @@ def advantage_estimate(
     batch, seq_len = rewards.shape
     device = rewards.device
     advantages = torch.zeros_like(rewards)  # advantages: (batch, seq_len)
-    last_gae_lam = torch.zeros(batch, device=device)  # last_gae_lam: (batch,)
+    last_gae_lam = torch.zeros(batch, device = device)  # last_gae_lam: (batch,)
     
     #
     for t in reversed(range(seq_len)):
         # 计算下一时刻起的values: V(s_{t+1})
         if t == seq_len - 1:
-            next_values = torch.zeros(batch, device=device)
+            next_values = torch.zeros(batch, device = device)
         else:
             next_values = values[:, t+1]
         next_non_terminal = 1.0 - dones[:, t]  # 是否达到该轨迹末端
