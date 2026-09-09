@@ -112,7 +112,7 @@ if __name__ == "__main__":
     
     logits = model(input_ids, mask = mask)  # logits: (batch, seq_len, vocab_size)
     
-    next_token_id = top_k_sampling(logits, k = 50, temperature = 0.8)  # next_token_id: (batch,)
+    next_token_id = top_k_sampling(logits[:, -1, :], k = 50, temperature = 0.8)  # next_token_id: (batch, 1)
 
 def softmax(x, dim = -1):
     x = x - x.max(dim = dim, keepdim = True).values
