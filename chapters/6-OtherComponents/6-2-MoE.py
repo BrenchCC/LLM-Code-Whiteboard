@@ -58,7 +58,7 @@ class MoE(nn.Module):
             mask = topk_idx == expert_id  # 哪些token选中当前的专家
             if not mask.any():
                 continue
-               # 对于编号为token_idx的token，当前专家是它第which_k个top-k专家
+            # 对于编号为token_idx的token，当前专家是它第which_k个top-k专家
             # token_idx和which_k是长度为selected_len的向量, selected_len为选中当前专家的token数
             token_idx, which_k = torch.where(mask)
             # 专家处理, input: (selected_len, d_model), output: (selected_len, d_model)
